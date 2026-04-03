@@ -1,0 +1,60 @@
+# ── Odoo 19.0 Community – Docker Compose ──
+# Usage:
+#   docker compose up -d          # start in background
+#   docker compose logs -f odoo   # follow Odoo logs
+#   docker compose down           # stop & remove containers
+#   docker compose down -v        # stop & remove containers + volumes (DELETES DATA)
+
+services:
+  # ── PostgreSQL 16 ──
+  db:
+    image: postgres:16
+    container_name: odoo19-db
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+    ports:
+      - "5434:5432"
+    volumes:
+      - odoo-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ── Odoo 19 (from source) ──
+  odoo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: odoo19-web
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8069:8069"
+      - "8071:8071"
+      - "8072:8072"
+    volumes:
+      - odoo-data:/var/lib/odoo
+      - ./addons:/opt/odoo/custom-addons:ro
+    environment:
+      - HOST=db
+      - PORT=5432
+      - USER=odoo
+      - PASSWORD=odoo
+    command: >
+      -c /etc/odoo/odoo.conf
+      --database=odoo19
+      --init=base
+      --without-demo=all
+    restart: unless-stopped
+
+volumes:
+  odoo-db-data:
+    driver: local
+  odoo-data:
+    driver: local
