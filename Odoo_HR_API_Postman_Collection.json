@@ -1,0 +1,1670 @@
+{
+	"info": {
+		"_postman_id": "odoo-hr-api-collection",
+		"name": "Odoo 19.0 - HR Modules API",
+		"description": "Complete API collection for Odoo HR modules including Employees, Attendance, Leaves, Payroll, Recruitment, Expenses, and Timesheets",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "odoo-hr-2026"
+	},
+	"auth": {
+		"type": "noauth"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8069",
+			"type": "string"
+		},
+		{
+			"key": "db_name",
+			"value": "odoo_dev",
+			"type": "string"
+		},
+		{
+			"key": "username",
+			"value": "admin",
+			"type": "string"
+		},
+		{
+			"key": "password",
+			"value": "admin",
+			"type": "string"
+		},
+		{
+			"key": "session_id",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "0. Authentication",
+			"item": [
+				{
+					"name": "Login (Session)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Extract session_id from cookies and save to environment",
+									"var cookies = pm.cookies.all();",
+									"for (var i = 0; i < cookies.length; i++) {",
+									"    if (cookies[i].name === 'session_id') {",
+									"        pm.collectionVariables.set('session_id', cookies[i].value);",
+									"        console.log('Session ID saved:', cookies[i].value);",
+									"    }",
+									"}",
+									"",
+									"// Check if login was successful",
+									"var jsonData = pm.response.json();",
+									"if (jsonData.result && jsonData.result.uid) {",
+									"    console.log('Login successful. User ID:', jsonData.result.uid);",
+									"    pm.collectionVariables.set('user_id', jsonData.result.uid);",
+									"} else {",
+									"    console.log('Login failed');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"db\": \"{{db_name}}\",\n        \"login\": \"{{username}}\",\n        \"password\": \"{{password}}\"\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/session/authenticate",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"session",
+								"authenticate"
+							]
+						},
+						"description": "Authenticate and create a session. Session cookie is automatically stored."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Session Info",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {},\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/session/get_session_info",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"session",
+								"get_session_info"
+							]
+						},
+						"description": "Get current session information including user details, companies, currencies, etc."
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {},\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/session/destroy",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"session",
+								"destroy"
+							]
+						},
+						"description": "Destroy current session (logout)"
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints for session management"
+		},
+		{
+			"name": "1. HR Employees",
+			"item": [
+				{
+					"name": "List All Employees",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.employee\",\n        \"method\": \"search_read\",\n        \"args\": [[]],\n        \"kwargs\": {\n            \"fields\": [\"name\", \"job_id\", \"department_id\", \"work_email\", \"work_phone\", \"mobile_phone\", \"work_location_id\", \"employee_type\", \"active\"],\n            \"limit\": 80,\n            \"offset\": 0\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get all employees with basic information"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Employee by ID",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.employee\",\n        \"method\": \"read\",\n        \"args\": [[1]],\n        \"kwargs\": {\n            \"fields\": [\"name\", \"job_id\", \"department_id\", \"work_email\", \"work_phone\", \"mobile_phone\", \"work_location_id\", \"employee_type\", \"company_id\", \"parent_id\", \"coach_id\", \"address_id\", \"km_home_work\", \"visa_no\", \"visa_expire\", \"certificate\", \"study_field\", \"study_school\", \"emergency_contact\", \"emergency_phone\", \"barcode\", \"pin\"]\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get detailed employee information by ID (change ID in args)"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Employee",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.employee\",\n        \"method\": \"create\",\n        \"args\": [{\n            \"name\": \"John Doe\",\n            \"work_email\": \"john.doe@company.com\",\n            \"work_phone\": \"+32 2 123 4567\",\n            \"mobile_phone\": \"+32 475 12 34 56\",\n            \"employee_type\": \"employee\",\n            \"active\": true\n        }],\n        \"kwargs\": {}\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Create a new employee"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Employee",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.employee\",\n        \"method\": \"write\",\n        \"args\": [[1], {\n            \"work_phone\": \"+32 2 999 8888\",\n            \"mobile_phone\": \"+32 475 99 88 77\"\n        }],\n        \"kwargs\": {}\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Update employee information (change ID in first array)"
+					},
+					"response": []
+				},
+				{
+					"name": "Search Employees by Department",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.employee\",\n        \"method\": \"search_read\",\n        \"args\": [[[\"department_id.name\", \"ilike\", \"Sales\"]]],\n        \"kwargs\": {\n            \"fields\": [\"name\", \"job_id\", \"department_id\", \"work_email\"],\n            \"limit\": 50\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Search employees by department name"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Active Employees Only",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.employee\",\n        \"method\": \"search_read\",\n        \"args\": [[[\"active\", \"=\", true]]],\n        \"kwargs\": {\n            \"fields\": [\"name\", \"job_id\", \"department_id\", \"work_email\"],\n            \"order\": \"name asc\"\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Employee management endpoints"
+		},
+		{
+			"name": "2. HR Attendance",
+			"item": [
+				{
+					"name": "List Attendance Records",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.attendance\",\n        \"method\": \"search_read\",\n        \"args\": [[]],\n        \"kwargs\": {\n            \"fields\": [\"employee_id\", \"check_in\", \"check_out\", \"worked_hours\"],\n            \"limit\": 50,\n            \"order\": \"check_in desc\"\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get attendance records with check-in/check-out times"
+					},
+					"response": []
+				},
+				{
+					"name": "Check In (Manual)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.attendance\",\n        \"method\": \"create\",\n        \"args\": [{\n            \"employee_id\": 1,\n            \"check_in\": \"2026-03-21 08:00:00\"\n        }],\n        \"kwargs\": {}\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Manual check-in for an employee"
+					},
+					"response": []
+				},
+				{
+					"name": "Check Out (Manual)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.attendance\",\n        \"method\": \"write\",\n        \"args\": [[1], {\n            \"check_out\": \"2026-03-21 17:00:00\"\n        }],\n        \"kwargs\": {}\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Manual check-out (update attendance record with ID)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Today's Attendance",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.attendance\",\n        \"method\": \"search_read\",\n        \"args\": [[[\"check_in\", \">=\", \"2026-03-21 00:00:00\"], [\"check_in\", \"<\", \"2026-03-22 00:00:00\"]]],\n        \"kwargs\": {\n            \"fields\": [\"employee_id\", \"check_in\", \"check_out\", \"worked_hours\"],\n            \"order\": \"check_in desc\"\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get attendance records for today"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Employee's Attendance History",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.attendance\",\n        \"method\": \"search_read\",\n        \"args\": [[[\"employee_id\", \"=\", 1]]],\n        \"kwargs\": {\n            \"fields\": [\"employee_id\", \"check_in\", \"check_out\", \"worked_hours\"],\n            \"limit\": 30,\n            \"order\": \"check_in desc\"\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get attendance history for a specific employee"
+					},
+					"response": []
+				}
+			],
+			"description": "Attendance tracking endpoints"
+		},
+		{
+			"name": "3. HR Leaves (Time Off)",
+			"item": [
+				{
+					"name": "List Leave Requests",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.leave\",\n        \"method\": \"search_read\",\n        \"args\": [[]],\n        \"kwargs\": {\n            \"fields\": [\"employee_id\", \"holiday_status_id\", \"request_date_from\", \"request_date_to\", \"number_of_days\", \"state\", \"name\"],\n            \"limit\": 50,\n            \"order\": \"request_date_from desc\"\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get all leave/time-off requests"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Leave Request",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.leave\",\n        \"method\": \"create\",\n        \"args\": [{\n            \"employee_id\": 1,\n            \"holiday_status_id\": 1,\n            \"request_date_from\": \"2026-04-01\",\n            \"request_date_to\": \"2026-04-05\",\n            \"name\": \"Annual vacation\"\n        }],\n        \"kwargs\": {}\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Create a new leave request"
+					},
+					"response": []
+				},
+				{
+					"name": "Approve Leave Request",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.leave\",\n        \"method\": \"action_approve\",\n        \"args\": [[1]],\n        \"kwargs\": {}\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Approve a leave request (requires manager rights)"
+					},
+					"response": []
+				},
+				{
+					"name": "Refuse Leave Request",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.leave\",\n        \"method\": \"action_refuse\",\n        \"args\": [[1]],\n        \"kwargs\": {}\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Refuse a leave request (requires manager rights)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Leave Types",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.leave.type\",\n        \"method\": \"search_read\",\n        \"args\": [[]],\n        \"kwargs\": {\n            \"fields\": [\"name\", \"requires_allocation\", \"allocation_type\", \"time_type\", \"color\"]\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get all leave types (Paid Leave, Sick Leave, etc.)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Employee Leave Balance",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.leave.allocation\",\n        \"method\": \"search_read\",\n        \"args\": [[[\"employee_id\", \"=\", 1], [\"state\", \"=\", \"validate\"]]],\n        \"kwargs\": {\n            \"fields\": [\"employee_id\", \"holiday_status_id\", \"number_of_days\", \"date_from\", \"date_to\"]\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get leave balance/allocation for an employee"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Pending Leave Requests",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.leave\",\n        \"method\": \"search_read\",\n        \"args\": [[[\"state\", \"=\", \"confirm\"]]],\n        \"kwargs\": {\n            \"fields\": [\"employee_id\", \"holiday_status_id\", \"request_date_from\", \"request_date_to\", \"number_of_days\", \"name\"],\n            \"order\": \"request_date_from desc\"\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get all leave requests waiting for approval"
+					},
+					"response": []
+				}
+			],
+			"description": "Leave/Time-off management endpoints"
+		},
+		{
+			"name": "4. HR Recruitment",
+			"item": [
+				{
+					"name": "List Job Positions",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.job\",\n        \"method\": \"search_read\",\n        \"args\": [[]],\n        \"kwargs\": {\n            \"fields\": [\"name\", \"department_id\", \"no_of_recruitment\", \"no_of_hired_employee\", \"state\", \"description\"]\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get all job positions"
+					},
+					"response": []
+				},
+				{
+					"name": "List Applicants",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.applicant\",\n        \"method\": \"search_read\",\n        \"args\": [[]],\n        \"kwargs\": {\n            \"fields\": [\"name\", \"partner_name\", \"email_from\", \"partner_phone\", \"job_id\", \"stage_id\", \"salary_proposed\", \"availability\"],\n            \"limit\": 50,\n            \"order\": \"create_date desc\"\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get all job applicants"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Applicant",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.applicant\",\n        \"method\": \"create\",\n        \"args\": [{\n            \"name\": \"Application for Software Developer\",\n            \"partner_name\": \"Jane Smith\",\n            \"email_from\": \"jane.smith@example.com\",\n            \"partner_phone\": \"+32 475 12 34 56\",\n            \"job_id\": 1,\n            \"salary_proposed\": 50000,\n            \"availability\": \"2026-05-01\"\n        }],\n        \"kwargs\": {}\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Create a new job applicant"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Applicants by Job",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.applicant\",\n        \"method\": \"search_read\",\n        \"args\": [[[\"job_id\", \"=\", 1]]],\n        \"kwargs\": {\n            \"fields\": [\"name\", \"partner_name\", \"email_from\", \"stage_id\", \"salary_proposed\"],\n            \"order\": \"create_date desc\"\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get applicants for a specific job position"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Employee from Applicant",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.applicant\",\n        \"method\": \"create_employee_from_applicant\",\n        \"args\": [[1]],\n        \"kwargs\": {}\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Convert applicant to employee (hire)"
+					},
+					"response": []
+				}
+			],
+			"description": "Recruitment and job application endpoints"
+		},
+		{
+			"name": "5. HR Expenses",
+			"item": [
+				{
+					"name": "List Expenses",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.expense\",\n        \"method\": \"search_read\",\n        \"args\": [[]],\n        \"kwargs\": {\n            \"fields\": [\"name\", \"employee_id\", \"product_id\", \"total_amount\", \"date\", \"state\", \"payment_mode\"],\n            \"limit\": 50,\n            \"order\": \"date desc\"\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get all expense records"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Expense",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.expense\",\n        \"method\": \"create\",\n        \"args\": [{\n            \"name\": \"Hotel accommodation - Brussels\",\n            \"employee_id\": 1,\n            \"product_id\": 1,\n            \"total_amount\": 150.00,\n            \"date\": \"2026-03-20\",\n            \"payment_mode\": \"own_account\"\n        }],\n        \"kwargs\": {}\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Create a new expense"
+					},
+					"response": []
+				},
+				{
+					"name": "Submit Expense for Approval",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.expense\",\n        \"method\": \"action_submit_expenses\",\n        \"args\": [[1]],\n        \"kwargs\": {}\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Submit expense for manager approval"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Expense Products",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"product.product\",\n        \"method\": \"search_read\",\n        \"args\": [[[\"can_be_expensed\", \"=\", true]]],\n        \"kwargs\": {\n            \"fields\": [\"name\", \"standard_price\", \"uom_id\"]\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get all products that can be expensed"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Employee's Expenses",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.expense\",\n        \"method\": \"search_read\",\n        \"args\": [[[\"employee_id\", \"=\", 1]]],\n        \"kwargs\": {\n            \"fields\": [\"name\", \"product_id\", \"total_amount\", \"date\", \"state\"],\n            \"order\": \"date desc\"\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get all expenses for a specific employee"
+					},
+					"response": []
+				}
+			],
+			"description": "Expense management endpoints"
+		},
+		{
+			"name": "6. HR Timesheets",
+			"item": [
+				{
+					"name": "List Timesheet Entries",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"account.analytic.line\",\n        \"method\": \"search_read\",\n        \"args\": [[[\"project_id\", \"!=\", false]]],\n        \"kwargs\": {\n            \"fields\": [\"employee_id\", \"project_id\", \"task_id\", \"name\", \"unit_amount\", \"date\"],\n            \"limit\": 50,\n            \"order\": \"date desc\"\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get timesheet entries (analytic lines linked to projects)"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Timesheet Entry",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"account.analytic.line\",\n        \"method\": \"create\",\n        \"args\": [{\n            \"employee_id\": 1,\n            \"project_id\": 1,\n            \"task_id\": 1,\n            \"name\": \"Development work on API integration\",\n            \"unit_amount\": 8.0,\n            \"date\": \"2026-03-21\"\n        }],\n        \"kwargs\": {}\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Create a new timesheet entry"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Employee's Timesheets",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"account.analytic.line\",\n        \"method\": \"search_read\",\n        \"args\": [[[\"employee_id\", \"=\", 1], [\"project_id\", \"!=\", false]]],\n        \"kwargs\": {\n            \"fields\": [\"project_id\", \"task_id\", \"name\", \"unit_amount\", \"date\"],\n            \"limit\": 30,\n            \"order\": \"date desc\"\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get timesheets for a specific employee"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Timesheets by Project",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"account.analytic.line\",\n        \"method\": \"search_read\",\n        \"args\": [[[\"project_id\", \"=\", 1]]],\n        \"kwargs\": {\n            \"fields\": [\"employee_id\", \"task_id\", \"name\", \"unit_amount\", \"date\"],\n            \"order\": \"date desc\"\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get all timesheet entries for a specific project"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Timesheet Entry",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"account.analytic.line\",\n        \"method\": \"write\",\n        \"args\": [[1], {\n            \"unit_amount\": 6.5,\n            \"name\": \"Updated: Development work on API integration\"\n        }],\n        \"kwargs\": {}\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Update a timesheet entry"
+					},
+					"response": []
+				}
+			],
+			"description": "Timesheet management endpoints"
+		},
+		{
+			"name": "7. HR Payroll",
+			"item": [
+				{
+					"name": "List Payslips",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.payslip\",\n        \"method\": \"search_read\",\n        \"args\": [[]],\n        \"kwargs\": {\n            \"fields\": [\"employee_id\", \"name\", \"date_from\", \"date_to\", \"state\", \"struct_id\", \"company_id\"],\n            \"limit\": 50,\n            \"order\": \"date_from desc\"\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get all payslips"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Payslip Details",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.payslip\",\n        \"method\": \"read\",\n        \"args\": [[1]],\n        \"kwargs\": {\n            \"fields\": [\"employee_id\", \"name\", \"date_from\", \"date_to\", \"state\", \"struct_id\", \"line_ids\", \"worked_days_line_ids\", \"input_line_ids\"]\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get detailed payslip information including lines"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Payslip Lines",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.payslip.line\",\n        \"method\": \"search_read\",\n        \"args\": [[[\"slip_id\", \"=\", 1]]],\n        \"kwargs\": {\n            \"fields\": [\"name\", \"code\", \"category_id\", \"amount\", \"total\", \"salary_rule_id\"]\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get payslip lines (salary breakdown) for a specific payslip"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Payslip",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.payslip\",\n        \"method\": \"create\",\n        \"args\": [{\n            \"employee_id\": 1,\n            \"date_from\": \"2026-03-01\",\n            \"date_to\": \"2026-03-31\",\n            \"name\": \"Payslip March 2026\",\n            \"struct_id\": 1\n        }],\n        \"kwargs\": {}\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Create a new payslip"
+					},
+					"response": []
+				},
+				{
+					"name": "Compute Payslip",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.payslip\",\n        \"method\": \"compute_sheet\",\n        \"args\": [[1]],\n        \"kwargs\": {}\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Compute/calculate payslip lines and amounts"
+					},
+					"response": []
+				},
+				{
+					"name": "Confirm Payslip",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.payslip\",\n        \"method\": \"action_payslip_done\",\n        \"args\": [[1]],\n        \"kwargs\": {}\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Confirm/finalize a payslip"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Salary Structures",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.payroll.structure\",\n        \"method\": \"search_read\",\n        \"args\": [[]],\n        \"kwargs\": {\n            \"fields\": [\"name\", \"type_id\", \"country_id\"]\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get all salary structures"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Employee's Payslips",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.payslip\",\n        \"method\": \"search_read\",\n        \"args\": [[[\"employee_id\", \"=\", 1]]],\n        \"kwargs\": {\n            \"fields\": [\"name\", \"date_from\", \"date_to\", \"state\", \"struct_id\"],\n            \"order\": \"date_from desc\"\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get all payslips for a specific employee"
+					},
+					"response": []
+				}
+			],
+			"description": "Payroll management endpoints"
+		},
+		{
+			"name": "8. HR Departments",
+			"item": [
+				{
+					"name": "List Departments",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.department\",\n        \"method\": \"search_read\",\n        \"args\": [[]],\n        \"kwargs\": {\n            \"fields\": [\"name\", \"manager_id\", \"parent_id\", \"company_id\", \"color\"]\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get all departments"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Department",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.department\",\n        \"method\": \"create\",\n        \"args\": [{\n            \"name\": \"IT Department\",\n            \"manager_id\": 1\n        }],\n        \"kwargs\": {}\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Create a new department"
+					},
+					"response": []
+				}
+			],
+			"description": "Department management endpoints"
+		},
+		{
+			"name": "9. HR Contracts",
+			"item": [
+				{
+					"name": "List Contracts",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.contract\",\n        \"method\": \"search_read\",\n        \"args\": [[]],\n        \"kwargs\": {\n            \"fields\": [\"name\", \"employee_id\", \"job_id\", \"date_start\", \"date_end\", \"wage\", \"state\", \"structure_type_id\"],\n            \"limit\": 50,\n            \"order\": \"date_start desc\"\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get all employment contracts"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Contract",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.contract\",\n        \"method\": \"create\",\n        \"args\": [{\n            \"name\": \"Contract - John Doe\",\n            \"employee_id\": 1,\n            \"job_id\": 1,\n            \"date_start\": \"2026-04-01\",\n            \"wage\": 3500.00,\n            \"state\": \"draft\",\n            \"structure_type_id\": 1\n        }],\n        \"kwargs\": {}\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Create a new employment contract"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Active Contracts",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.contract\",\n        \"method\": \"search_read\",\n        \"args\": [[[\"state\", \"=\", \"open\"]]],\n        \"kwargs\": {\n            \"fields\": [\"name\", \"employee_id\", \"job_id\", \"date_start\", \"wage\"],\n            \"order\": \"employee_id\"\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get all active (running) contracts"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Employee's Contracts",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.contract\",\n        \"method\": \"search_read\",\n        \"args\": [[[\"employee_id\", \"=\", 1]]],\n        \"kwargs\": {\n            \"fields\": [\"name\", \"job_id\", \"date_start\", \"date_end\", \"wage\", \"state\"],\n            \"order\": \"date_start desc\"\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get all contracts for a specific employee"
+					},
+					"response": []
+				}
+			],
+			"description": "Contract management endpoints"
+		},
+		{
+			"name": "10. HR Skills",
+			"item": [
+				{
+					"name": "List Skills",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.skill\",\n        \"method\": \"search_read\",\n        \"args\": [[]],\n        \"kwargs\": {\n            \"fields\": [\"name\", \"skill_type_id\"]\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get all available skills"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Employee Skills",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.employee.skill\",\n        \"method\": \"search_read\",\n        \"args\": [[[\"employee_id\", \"=\", 1]]],\n        \"kwargs\": {\n            \"fields\": [\"skill_id\", \"skill_level_id\", \"skill_type_id\"]\n        }\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Get skills for a specific employee"
+					},
+					"response": []
+				},
+				{
+					"name": "Add Skill to Employee",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"model\": \"hr.employee.skill\",\n        \"method\": \"create\",\n        \"args\": [{\n            \"employee_id\": 1,\n            \"skill_id\": 1,\n            \"skill_level_id\": 1\n        }],\n        \"kwargs\": {}\n    },\n    \"id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/web/dataset/call_kw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"web",
+								"dataset",
+								"call_kw"
+							]
+						},
+						"description": "Add a skill to an employee"
+					},
+					"response": []
+				}
+			],
+			"description": "Skills management endpoints"
+		}
+	]
+}
