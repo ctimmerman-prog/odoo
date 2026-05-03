@@ -802,6 +802,13 @@ class AccountAccount(models.Model):
             )
         return sql_order
 
+    def _get_name_search_account_types(self, move_type):
+        move_type_accounts = {
+            'out': ['income'],
+            'in': ['expense', 'asset_fixed', 'expense_direct_cost'],
+        }
+        return move_type_accounts.get(move_type.split('_')[0])
+
     @api.model
     @api.readonly
     def name_search(self, name='', domain=None, operator='ilike', limit=100):
@@ -821,11 +828,7 @@ class AccountAccount(models.Model):
         if digit_in_search_term:
             domain = Domain.AND([search_domain, domain])
         else:
-            move_type_accounts = {
-                'out': ['income'],
-                'in': ['expense', 'asset_fixed'],
-            }
-            allowed_account_types = move_type_accounts.get(move_type.split('_')[0])
+            allowed_account_types = self._get_name_search_account_types(move_type)
             type_domain = [('account_type', 'in', allowed_account_types)] if allowed_account_types else []
             domain = Domain.AND([search_domain, type_domain, domain])
 
