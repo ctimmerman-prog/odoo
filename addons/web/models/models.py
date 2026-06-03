@@ -52,9 +52,13 @@ class Base(models.AbstractModel):
     @api.readonly
     def web_name_search(self, name, specification, domain=None, operator='ilike', limit=100):
         id_name_pairs = self.name_search(name, domain, operator, limit)
-        if len(specification) == 1 and 'display_name' in specification:
-            return [{'id': id, 'display_name': name, '__formatted_display_name': self.with_context(formatted_display_name=True).browse(id).display_name} for id, name in id_name_pairs]
         records = self.browse([id for id, _ in id_name_pairs])
+        if len(specification) == 1 and 'display_name' in specification:
+            return [{
+                'id': record.id,
+                'display_name': record.display_name,
+                '__formatted_display_name': record.with_context(formatted_display_name=True).display_name,
+            } for record in records]
         return records.web_read(specification)
 
     @api.model
@@ -1369,18 +1373,22 @@ class Base(models.AbstractModel):
             progress bar field values to the related number of records
         """
         def adapt(value):
-            if isinstance(value, BaseModel):
-                return value.id
+            if isinstance(value, tuple):
+                return value[0]
             return value
 
         result = defaultdict(lambda: dict.fromkeys(progress_bar['colors'], 0))
 
-        for main_group, field_value, count in self._read_group(
+        # formatted_read_group produces the same group_by keys the kanban
+        # client uses to look up progress bar counts, so the two sides match
+        # for every field type (m2o, selection, date granularities, ...).
+        for group in self.formatted_read_group(
             domain, [group_by, progress_bar['field']], ['__count'],
         ):
+            field_value = group[progress_bar['field']]
             if field_value in progress_bar['colors']:
-                group_by_value = str(adapt(main_group))
-                result[group_by_value][field_value] += count
+                group_by_value = str(adapt(group[group_by]))
+                result[group_by_value][field_value] += group['__count']
 
         return result
 
