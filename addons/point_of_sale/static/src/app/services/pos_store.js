@@ -1940,6 +1940,12 @@ export class PosStore extends WithLazyGetterTrap {
                 await this.syncAllOrders({ orders: [order] });
                 return;
             }
+        } catch (e) {
+            if (e instanceof ConnectionLostError) {
+                // print prep receipt even Offline
+                await this.sendOrderInPreparation(order, opts);
+            }
+            throw e;
         } finally {
             this.syncingOrders.delete(order.uuid);
         }
@@ -2443,6 +2449,8 @@ export class PosStore extends WithLazyGetterTrap {
 
             if (preset.identification === "name") {
                 await this.handleSelectNamePreset(order);
+                // re-set the order in case an order was selected from the current orders list in the EditOrderNamePopup
+                order = this.getOrder();
             }
 
             if (preset.use_timing && !order.preset_time) {
