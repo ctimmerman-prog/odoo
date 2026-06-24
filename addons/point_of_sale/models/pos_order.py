@@ -560,12 +560,14 @@ class PosOrder(models.Model):
 
     def _update_sequence_number(self, session, values):
         # Some localization needs orders to have a sequence number
-        values['sequence_number'] = (
-            session.config_id.order_seq_id
-            ._next()
-            .removeprefix(session.config_id.order_seq_id.prefix or '')
-            .removesuffix(session.config_id.order_seq_id.suffix or '')
-        )
+        seq_id = session.config_id.order_seq_id
+        prefix, suffix = seq_id._get_prefix_suffix()
+        seq_next = seq_id._next()
+        if prefix:
+            seq_next = seq_next.removeprefix(prefix)
+        if suffix:
+            seq_next = seq_next.removesuffix(suffix)
+        values['sequence_number'] = seq_next
 
     @api.model
     def _complete_values_from_session(self, session, values):
@@ -687,8 +689,11 @@ class PosOrder(models.Model):
         self.ensure_one()
         session = session or self.session_id
         last_reference_part = self.get_reference_last_part()
-        prefix = session.config_id.order_seq_id.prefix or session.config_id.name
-        suffix = f" - {session.config_id.order_seq_id.suffix}" if session.config_id.order_seq_id.suffix else ''
+        seq_id = session.config_id.order_seq_id
+        prefix, suffix = seq_id._get_prefix_suffix()
+        if not prefix:
+            prefix = session.config_id.name
+        suffix = f" - {suffix}" if suffix else ''
         return f"{prefix} - {last_reference_part}{suffix}"
 
     def _compute_order_name(self, session=None):
@@ -1952,7 +1957,9 @@ class PosOrderLine(models.Model):
     def _get_discount_amount(self):
         self.ensure_one()
         original_price = self.tax_ids_after_fiscal_position.compute_all(self.price_unit, self.currency_id, self.qty, product=self.product_id, partner=self.order_id.partner_id)['total_included']
-        return original_price - self.price_subtotal_incl
+        # Use magnitudes and reapply the line sign
+        sign = -1 if self.price_unit * self.qty < 0 else 1
+        return sign * (abs(original_price) - abs(self.price_subtotal_incl))
 
     def _get_discount_amount_for_report(self):
         return self._get_discount_amount()
