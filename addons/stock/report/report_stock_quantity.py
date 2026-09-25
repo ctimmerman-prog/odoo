@@ -73,11 +73,11 @@ WITH
         LEFT JOIN uom_uom uom_product ON uom_product.id = pt.uom_id
         WHERE pt.is_storable = true AND
             source.w_id IS DISTINCT FROM dest.w_id AND
-            m.product_qty != 0 AND
+            (m.product_qty != 0 OR m.quantity != 0) AND
             m.state NOT IN ('draft', 'cancel') AND
             (m.state != 'done' or m.date >= ((now() at time zone 'utc')::date - interval '%(report_period)s month'))
     ),
-    all_sm (id, product_id, tmpl_id, product_qty, quantity, qty_done_product_uom, date, state, company_id, whs_id, whd_id) AS (
+    all_sm (id, product_id, tmpl_id, product_qty, quantity, qty_done_product_uom, date, state, company_id, whs_id, whd_id) AS NOT MATERIALIZED (
         SELECT sm.id, sm.product_id, sm.tmpl_id,
             CASE
                 WHEN is_duplicated = 0 OR sm.whs_id != sm.whd_id THEN sm.product_qty
@@ -186,7 +186,7 @@ FROM (SELECT
     FROM
         all_sm m
     WHERE
-        m.product_qty != 0) AS forecast_qty
+        m.product_qty != 0 OR (m.state = 'done' AND m.quantity != 0)) AS forecast_qty
 GROUP BY product_id, product_tmpl_id, state, date, company_id, warehouse_id
 );
 """

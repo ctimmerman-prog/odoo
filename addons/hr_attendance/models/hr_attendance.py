@@ -48,11 +48,11 @@ class HrAttendance(models.Model):
     date = fields.Date(string="Date", compute='_compute_date', store=True, index=True, precompute=True, required=True)
     worked_hours = fields.Float(string='Worked Hours', compute='_compute_worked_hours', store=True, readonly=True)
     color = fields.Integer(compute='_compute_color')
-    overtime_hours = fields.Float(string="Over Time", compute='_compute_overtime_hours', store=True)
+    overtime_hours = fields.Float(string="Worked Extra Hours", compute='_compute_overtime_hours', store=True)
     overtime_status = fields.Selection(selection=[('to_approve', "To Approve"),
                                                   ('approved', "Approved"),
                                                   ('refused', "Refused")], compute="_compute_overtime_status", store=True, tracking=True, readonly=False)
-    validated_overtime_hours = fields.Float(string="Extra Hours", compute='_compute_validated_overtime_hours', tracking=True, store=True, readonly=True)
+    validated_overtime_hours = fields.Float(string="Validated Extra Hours", compute='_compute_validated_overtime_hours', tracking=True, store=True, readonly=True)
     in_latitude = fields.Float(string="Latitude", digits=(10, 7), readonly=True, aggregator=None)
     in_longitude = fields.Float(string="Longitude", digits=(10, 7), readonly=True, aggregator=None)
     in_location = fields.Char(help="Based on GPS-Coordinates if available or on IP Address")
@@ -273,9 +273,23 @@ class HrAttendance(models.Model):
             tz = timezone(employee.tz)
             local_check_in = utc.localize(min(attendances.mapped('check_in'))).astimezone(tz)
             local_check_out = utc.localize(max(attendances.mapped('check_out'))).astimezone(tz)
-            rulesets = attendances.mapped(lambda att: att.employee_id.sudo()._get_version(att.date)).ruleset_id
-            # append this domain only for weekly rules
-            if any(rule.quantity_period == 'week' for rule in rulesets.sudo().rule_ids):
+            versions = attendances.mapped(lambda att: att.employee_id.sudo()._get_version(att.date))
+            rulesets = versions.ruleset_id
+            # append this domain for weekly rules or flexible daily rules whose expected hours are capped weekly
+            if (
+                any(rule.quantity_period == 'week' for rule in rulesets.sudo().rule_ids)
+                or any(
+                    version.resource_calendar_id.flexible_hours
+                    and version.resource_calendar_id.hours_per_week
+                    and any(
+                        rule.base_off == 'quantity'
+                        and rule.quantity_period == 'day'
+                        and rule.expected_hours_from_contract
+                        for rule in version.ruleset_id.sudo().rule_ids
+                    )
+                    for version in versions
+                )
+            ):
                 date_from = local_check_in.date() + relativedelta(weekday=MO(-1))
                 date_to = local_check_out.date() + relativedelta(weekday=SU)
             else:
@@ -284,8 +298,8 @@ class HrAttendance(models.Model):
 
             domain_list.append(Domain.AND([
                 Domain('employee_id', '=', employee.id),
-                Domain('check_in', '<=', datetime.combine(date_to, datetime.max.time()).replace(tzinfo=tz).astimezone(utc).replace(tzinfo=None)),
-                Domain('check_out', '>=', datetime.combine(date_from, datetime.min.time()).replace(tzinfo=tz).astimezone(utc).replace(tzinfo=None)),
+                Domain('check_in', '<=', tz.localize(datetime.combine(date_to, datetime.max.time())).astimezone(utc).replace(tzinfo=None)),
+                Domain('check_out', '>', tz.localize(datetime.combine(date_from, datetime.min.time())).astimezone(utc).replace(tzinfo=None)),
             ]))
         if not domain_list:
             return Domain.FALSE
@@ -347,6 +361,7 @@ class HrAttendance(models.Model):
                 for val in ruleset_sudo.rule_ids._generate_overtime_vals_v2(min(attendances_dates), max(attendances_dates), ruleset_attendances, schedules_intervals_by_employee)
             ])
         self.env['hr.attendance.overtime.line'].create(overtime_vals_list)
+        all_attendances.invalidate_recordset(['linked_overtime_ids'])
         self.env.add_to_compute(self._fields['overtime_hours'], all_attendances)
         self.env.add_to_compute(self._fields['expected_hours'], all_attendances)
         self.env.add_to_compute(self._fields['validated_overtime_hours'], all_attendances)

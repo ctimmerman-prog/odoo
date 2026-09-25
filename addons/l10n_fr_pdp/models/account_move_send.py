@@ -34,7 +34,7 @@ class AccountMoveSend(models.AbstractModel):
 
     def _get_peppol_document_params(self, partner, invoice, invoice_data):
         edi_user, document = super()._get_peppol_document_params(partner, invoice, invoice_data)
-        if edi_user.proxy_type == 'pdp':
+        if edi_user and document and edi_user.proxy_type == 'pdp':
             document.update({
                 'flow_number': 2,
                 'force_peppol_only': not invoice.company_id.l10n_fr_pdp_send_to_ppf,
@@ -64,7 +64,7 @@ class AccountMoveSend(models.AbstractModel):
         french_regulated_moves = relevant_moves.filtered(
             lambda m: (
                 m.company_id._peppol_is_french_company()
-                and m.partner_id.commercial_partner_id.with_company(self.company_id)._get_pdp_receiver_identification_info()[0] == 'pdp'
+                and m.partner_id.commercial_partner_id.with_company(m.company_id)._get_pdp_receiver_identification_info()[0] == 'pdp'
             )
         )
         if french_regulated_moves:
@@ -95,3 +95,8 @@ class AccountMoveSend(models.AbstractModel):
             }
             return action
         return super().action_what_is_peppol_activate(moves)
+
+    def _get_peppol_attachments_linked_message(self, edi_user):
+        if edi_user.proxy_type == 'pdp':
+            return self.env._("The invoice has been sent to the Approved Platform. The following attachments were sent with the XML:")
+        return super()._get_peppol_attachments_linked_message(edi_user)

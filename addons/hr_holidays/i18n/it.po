@@ -14,9 +14,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-03 17:35+0000\n"
-"PO-Revision-Date: 2026-07-06 06:18+0000\n"
-"Last-Translator: \"Marianna Ciofani (cima)\" <cima@odoo.com>\n"
+"POT-Creation-Date: 2026-07-17 17:37+0000\n"
+"PO-Revision-Date: 2026-08-02 16:48+0000\n"
+"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
 "Language-Team: Italian <https://translate.odoo.com/projects/odoo-19/"
 "hr_holidays/it/>\n"
 "Language: it\n"
@@ -254,28 +254,6 @@ msgstr "riassunto ("
 #: code:addons/hr_holidays/static/src/leave_stats/leave_stats.xml:0
 msgid "'s summary in this period"
 msgstr ": riassunto in questo periodo"
-
-#. module: hr_holidays
-#. odoo-javascript
-#: code:addons/hr_holidays/static/src/components/accrual_level/accrual_levels.xml:0
-msgid "(s)"
-msgstr "(s)"
-
-#. module: hr_holidays
-#. odoo-javascript
-#: code:addons/hr_holidays/static/src/components/accrual_level/accrual_levels.xml:0
-msgid ""
-"(s)\n"
-"                                    and a balance cap is set to"
-msgstr ""
-"(i)\n"
-"                                    e un limite di saldo e impostato su"
-
-#. module: hr_holidays
-#. odoo-javascript
-#: code:addons/hr_holidays/static/src/components/accrual_level/accrual_levels.xml:0
-msgid "(s)."
-msgstr "(s)."
 
 #. module: hr_holidays
 #. odoo-javascript
@@ -914,8 +892,7 @@ msgstr "Tipo di assegnazione"
 #. odoo-python
 #: code:addons/hr_holidays/models/hr_leave_allocation.py:0
 msgid "Allocation must be \"To Approve\" in order to approve it."
-msgstr ""
-"L'assegnazione deve essere \"Da approvare\" per poter essere approvata."
+msgstr "L'assegnazione deve essere \"Da approvare\" per poter essere approvata."
 
 #. module: hr_holidays
 #. odoo-python
@@ -3335,8 +3312,7 @@ msgstr "Solo un responsabile/manager delle ferie può approvare un congedo."
 #. odoo-python
 #: code:addons/hr_holidays/models/hr_leave_allocation.py:0
 msgid "Only a Time Off Officer/Manager can approve an allocation."
-msgstr ""
-"Solo un responsabile/manager delle ferie può approvare un'assegnazione."
+msgstr "Solo un responsabile/manager delle ferie può approvare un'assegnazione."
 
 #. module: hr_holidays
 #. odoo-python
@@ -3348,8 +3324,7 @@ msgstr "Solo un responsabile/manager delle ferie può rifiutare un congedo."
 #. odoo-python
 #: code:addons/hr_holidays/models/hr_leave_allocation.py:0
 msgid "Only a Time Off Officer/Manager can refuse an allocation."
-msgstr ""
-"Solo un responsabile/manager delle ferie può rifiutare un'assegnazione."
+msgstr "Solo un responsabile/manager delle ferie può rifiutare un'assegnazione."
 
 #. module: hr_holidays
 #. odoo-python
@@ -4265,8 +4240,7 @@ msgstr ""
 #: model:ir.model.fields,help:hr_holidays.field_hr_leave_allocation__approver_id
 msgid ""
 "This area is automatically filled by the user who validates the allocation"
-msgstr ""
-"Sezione compilata automaticamente dall'utente che valida l'assegnazione"
+msgstr "Sezione compilata automaticamente dall'utente che valida l'assegnazione"
 
 #. module: hr_holidays
 #: model:ir.model.fields,help:hr_holidays.field_hr_leave_allocation__second_approver_id
@@ -4280,8 +4254,7 @@ msgstr ""
 #. module: hr_holidays
 #: model:ir.model.fields,help:hr_holidays.field_hr_leave_accrual_level__accrual_validity_type
 msgid "This field defines the unit of time after which the accrual ends."
-msgstr ""
-"Questo campo definisce l'unità di tempo dopo la quale finisce il rateo."
+msgstr "Questo campo definisce l'unità di tempo dopo la quale finisce il rateo."
 
 #. module: hr_holidays
 #: model:ir.model.fields,help:hr_holidays.field_hr_leave_accrual_level__start_type
@@ -5204,8 +5177,8 @@ msgstr "Non è possibile convalidare il giorno di ferie."
 #: code:addons/hr_holidays/models/hr_leave_type.py:0
 msgid "You cannot allow requests on top of leaves of type 'Absence'."
 msgstr ""
-"Non è possibile consentire richieste in aggiunta alle ferie di tipo "
-"“Assenza”."
+"Non è possibile consentire richieste in aggiunta alle ferie di tipo “Assenza"
+"”."
 
 #. module: hr_holidays
 #. odoo-python
@@ -5385,6 +5358,12 @@ msgstr "data assegnazione"
 #. module: hr_holidays
 #. odoo-javascript
 #: code:addons/hr_holidays/static/src/components/accrual_level/accrual_levels.xml:0
+msgid "and a balance cap is set to"
+msgstr "e il limite di bilanciamento è impostato su"
+
+#. module: hr_holidays
+#. odoo-javascript
+#: code:addons/hr_holidays/static/src/components/accrual_level/accrual_levels.xml:0
 #: model_terms:ir.ui.view,arch_db:hr_holidays.hr_accrual_level_view_form
 msgid "and the"
 msgstr "e il"
@@ -5421,6 +5400,12 @@ msgstr "fai clic qui"
 #: model_terms:ir.ui.view,arch_db:hr_holidays.hr_leave_report_calendar_view_form
 msgid "dates"
 msgstr "date"
+
+#. module: hr_holidays
+#. odoo-javascript
+#: code:addons/hr_holidays/static/src/components/accrual_level/accrual_levels.js:0
+msgid "day(s)"
+msgstr "giorno/i"
 
 #. module: hr_holidays
 #. odoo-javascript
@@ -5508,6 +5493,12 @@ msgstr "dall'inizio dell'assegnazione"
 
 #. module: hr_holidays
 #. odoo-javascript
+#: code:addons/hr_holidays/static/src/components/accrual_level/accrual_levels.js:0
+msgid "hour(s)"
+msgstr "ora(e)"
+
+#. module: hr_holidays
+#. odoo-javascript
 #. odoo-python
 #: code:addons/hr_holidays/models/hr_leave.py:0
 #: code:addons/hr_holidays/models/hr_leave_allocation.py:0
@@ -5530,6 +5521,12 @@ msgid ""
 msgstr ""
 "le ferie di tipo \"Ore di lavoro\" devono essere sempre idonee per il tasso "
 "di maturazione."
+
+#. module: hr_holidays
+#. odoo-javascript
+#: code:addons/hr_holidays/static/src/components/accrual_level/accrual_levels.js:0
+msgid "month(s)"
+msgstr "mese(i)"
 
 #. module: hr_holidays
 #. odoo-javascript
@@ -5656,6 +5653,25 @@ msgstr "validi fino al"
 #: model_terms:ir.ui.view,arch_db:hr_holidays.hr_leave_report_calendar_view_search
 msgid "validate"
 msgstr "convalidare"
+
+#. module: hr_holidays
+#. odoo-javascript
+#: code:addons/hr_holidays/static/src/components/accrual_level/accrual_levels.js:0
+msgid "year(s)"
+msgstr "anno(i)"
+
+#~ msgid "(s)"
+#~ msgstr "(s)"
+
+#~ msgid ""
+#~ "(s)\n"
+#~ "                                    and a balance cap is set to"
+#~ msgstr ""
+#~ "(i)\n"
+#~ "                                    e un limite di saldo e impostato su"
+
+#~ msgid "(s)."
+#~ msgstr "(s)."
 
 #~ msgid "There is no valid allocation to cover that request."
 #~ msgstr "Non vi è nessuna assegnazione valida per coprire questa richiesta."
@@ -6529,9 +6545,6 @@ msgstr "convalidare"
 #~ msgid "day of the month"
 #~ msgstr "giorno del mese"
 
-#~ msgid "day(s)"
-#~ msgstr "giorno/i"
-
 #~ msgid "days of the months"
 #~ msgstr "giorni dei mesi"
 
@@ -6541,9 +6554,6 @@ msgstr "convalidare"
 #~ msgid "last day"
 #~ msgstr "ultimo giorno"
 
-#~ msgid "month(s)"
-#~ msgstr "mese(i)"
-
 #~ msgid "postponed"
 #~ msgstr "rimandato"
 
@@ -6552,6 +6562,3 @@ msgstr "convalidare"
 
 #~ msgid "validated"
 #~ msgstr "convalidata"
-
-#~ msgid "year(s)"
-#~ msgstr "anno(i)"

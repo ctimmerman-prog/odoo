@@ -21,7 +21,8 @@ class AccountAnalyticLine(models.Model):
         string='Financial Account',
         ondelete='restrict',
         check_company=True,
-        compute='_compute_general_account_id', store=True, readonly=False
+        compute='_compute_general_account_id', store=True, readonly=False,
+        index='btree_not_null',
     )
     journal_id = fields.Many2one(
         'account.journal',
@@ -84,7 +85,7 @@ class AccountAnalyticLine(models.Model):
                 or (not account_type and line.category not in ['invoice', 'other'])
                 or (not account_type and line.category == 'other' and line.amount < 0)
             ):
-                line.analytic_profitablity = 'loss'
+                line.analytic_profitability = 'loss'
             elif (
                 account_type.split('_')[0] == 'income'
                 or (not account_type and line.category == 'other' and line.amount > 0)

@@ -19,8 +19,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-03 17:35+0000\n"
-"PO-Revision-Date: 2026-06-30 07:10+0000\n"
+"POT-Creation-Date: 2026-07-17 17:37+0000\n"
+"PO-Revision-Date: 2026-08-05 23:26+0000\n"
 "Last-Translator: Gabriela Apostu <gabriela@terrabit.ro>\n"
 "Language-Team: Romanian <https://translate.odoo.com/projects/odoo-19/"
 "hr_holidays/ro/>\n"
@@ -257,28 +257,6 @@ msgstr "rezumatul lui ("
 #: code:addons/hr_holidays/static/src/leave_stats/leave_stats.xml:0
 msgid "'s summary in this period"
 msgstr "rezumatul din această perioadă"
-
-#. module: hr_holidays
-#. odoo-javascript
-#: code:addons/hr_holidays/static/src/components/accrual_level/accrual_levels.xml:0
-msgid "(s)"
-msgstr ""
-
-#. module: hr_holidays
-#. odoo-javascript
-#: code:addons/hr_holidays/static/src/components/accrual_level/accrual_levels.xml:0
-msgid ""
-"(s)\n"
-"                                    and a balance cap is set to"
-msgstr ""
-"(s)\n"
-"                                    și un plafon de sold este setat la"
-
-#. module: hr_holidays
-#. odoo-javascript
-#: code:addons/hr_holidays/static/src/components/accrual_level/accrual_levels.xml:0
-msgid "(s)."
-msgstr ""
 
 #. module: hr_holidays
 #. odoo-javascript
@@ -2547,8 +2525,8 @@ msgstr ""
 msgid ""
 "If you want to change the number of days you should use the 'period' mode"
 msgstr ""
-"Dacă doriți să modificați numărul de zile, ar trebui să utilizați modul "
-"„perioadă”"
+"Dacă doriți să modificați numărul de zile, ar trebui să utilizați modul „"
+"perioadă”"
 
 #. module: hr_holidays
 #: model:ir.model.fields,field_description:hr_holidays.field_hr_leave_type__include_public_holidays_in_duration
@@ -3162,8 +3140,7 @@ msgstr "Nu, păstrează versiunea veche"
 msgid ""
 "Nobody here ? All of the people you're looking for will be working at that "
 "time."
-msgstr ""
-"Nimeni aici? Toate persoanele pe care le căutați vor lucra la acea oră."
+msgstr "Nimeni aici? Toate persoanele pe care le căutați vor lucra la acea oră."
 
 #. module: hr_holidays
 #: model_terms:ir.ui.view,arch_db:hr_holidays.edit_holiday_status_form
@@ -4168,8 +4145,7 @@ msgstr "Data de început trebuie să fie anterioară datei de sfârșit."
 #. module: hr_holidays
 #: model:ir.model.constraint,message:hr_holidays.constraint_hr_leave_date_check2
 msgid "The start date must be before or equal to the end date."
-msgstr ""
-"Data de început trebuie să fie anterioară sau egală cu data de sfârșit."
+msgstr "Data de început trebuie să fie anterioară sau egală cu data de sfârșit."
 
 #. module: hr_holidays
 #: model:ir.model.fields,help:hr_holidays.field_hr_leave_allocation__state
@@ -4652,8 +4628,7 @@ msgstr "De două ori pe an"
 #: code:addons/hr_holidays/models/resource.py:0
 msgid ""
 "Two public holidays cannot overlap each other for the same working hours."
-msgstr ""
-"Două sărbători legale nu se pot suprapune pentru aceleași ore de lucru."
+msgstr "Două sărbători legale nu se pot suprapune pentru aceleași ore de lucru."
 
 #. module: hr_holidays
 #: model_terms:ir.ui.view,arch_db:hr_holidays.view_hr_holidays_filter
@@ -5267,8 +5242,7 @@ msgstr ""
 #: code:addons/hr_holidays/models/hr_leave.py:0
 msgid ""
 "You don't have the rights to apply second approval on a time off request"
-msgstr ""
-"Nu aveți drepturile de a aplica a doua aprobare la o cerere de concediu"
+msgstr "Nu aveți drepturile de a aplica a doua aprobare la o cerere de concediu"
 
 #. module: hr_holidays
 #: model_terms:ir.actions.act_window,help:hr_holidays.action_my_days_off_dashboard_calendar
@@ -5347,6 +5321,12 @@ msgstr "data alocării"
 #. module: hr_holidays
 #. odoo-javascript
 #: code:addons/hr_holidays/static/src/components/accrual_level/accrual_levels.xml:0
+msgid "and a balance cap is set to"
+msgstr ""
+
+#. module: hr_holidays
+#. odoo-javascript
+#: code:addons/hr_holidays/static/src/components/accrual_level/accrual_levels.xml:0
 #: model_terms:ir.ui.view,arch_db:hr_holidays.hr_accrual_level_view_form
 msgid "and the"
 msgstr "și la"
@@ -5383,6 +5363,12 @@ msgstr "click aici"
 #: model_terms:ir.ui.view,arch_db:hr_holidays.hr_leave_report_calendar_view_form
 msgid "dates"
 msgstr ""
+
+#. module: hr_holidays
+#. odoo-javascript
+#: code:addons/hr_holidays/static/src/components/accrual_level/accrual_levels.js:0
+msgid "day(s)"
+msgstr "zi(le)"
 
 #. module: hr_holidays
 #. odoo-javascript
@@ -5470,6 +5456,12 @@ msgstr ""
 
 #. module: hr_holidays
 #. odoo-javascript
+#: code:addons/hr_holidays/static/src/components/accrual_level/accrual_levels.js:0
+msgid "hour(s)"
+msgstr ""
+
+#. module: hr_holidays
+#. odoo-javascript
 #. odoo-python
 #: code:addons/hr_holidays/models/hr_leave.py:0
 #: code:addons/hr_holidays/models/hr_leave_allocation.py:0
@@ -5489,6 +5481,12 @@ msgstr "id"
 #: code:addons/hr_holidays/models/hr_leave_type.py:0
 msgid ""
 "leaves of type 'Worked Time' should be always eligible for accrual rate."
+msgstr ""
+
+#. module: hr_holidays
+#. odoo-javascript
+#: code:addons/hr_holidays/static/src/components/accrual_level/accrual_levels.js:0
+msgid "month(s)"
 msgstr ""
 
 #. module: hr_holidays
@@ -5616,6 +5614,19 @@ msgstr "valabil până la"
 #: model_terms:ir.ui.view,arch_db:hr_holidays.hr_leave_report_calendar_view_search
 msgid "validate"
 msgstr "validare"
+
+#. module: hr_holidays
+#. odoo-javascript
+#: code:addons/hr_holidays/static/src/components/accrual_level/accrual_levels.js:0
+msgid "year(s)"
+msgstr ""
+
+#~ msgid ""
+#~ "(s)\n"
+#~ "                                    and a balance cap is set to"
+#~ msgstr ""
+#~ "(s)\n"
+#~ "                                    și un plafon de sold este setat la"
 
 #~ msgid "There is no valid allocation to cover that request."
 #~ msgstr "Nu există nicio alocare valabilă pentru a acoperi această cerere."
@@ -6274,9 +6285,6 @@ msgstr "validare"
 
 #~ msgid "You cannot delete a time off which is in %s state"
 #~ msgstr "Nu puteți șterge un concediu care este în %s vigoare."
-
-#~ msgid "day(s)"
-#~ msgstr "zi(le)"
 
 #~ msgid "in"
 #~ msgstr "în"

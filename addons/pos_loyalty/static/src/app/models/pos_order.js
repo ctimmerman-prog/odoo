@@ -3,6 +3,7 @@ import { patch } from "@web/core/utils/patch";
 import { floatIsZero } from "@web/core/utils/numbers";
 import { _t } from "@web/core/l10n/translation";
 import { loyaltyIdsGenerator } from "@pos_loyalty/app/services/pos_store";
+import { accountTaxHelpers } from "@account/helpers/account_tax";
 const { DateTime } = luxon;
 
 function _newRandomRewardCode() {
@@ -222,6 +223,28 @@ patch(PosOrder.prototype, {
         this._code_activated_coupon_ids = [["clear"]];
     },
     /**
+     * `_code_activated_coupon_ids` is a local field: it is lost when the order is
+     * rebuilt from the server or from IndexedDB, while the reward lines it justified
+     * are persisted with their `coupon_id`. Re-link those coupons so that
+     * `_updateRewardLines` does not consider their rewards unclaimed and delete them.
+     */
+    _restoreCodeActivatedCoupons() {
+        for (const line of this._get_reward_lines()) {
+            const coupon = line.coupon_id;
+            if (
+                !coupon ||
+                coupon.id <= 0 ||
+                !coupon.program_id ||
+                coupon.program_id.is_nominative ||
+                this.uiState.couponPointChanges[coupon.id] ||
+                this._code_activated_coupon_ids.some((c) => c.id === coupon.id)
+            ) {
+                continue;
+            }
+            this._code_activated_coupon_ids = [["link", coupon]];
+        }
+    },
+    /**
      * Refreshes the currently applied rewards, if they are not applicable anymore they are removed.
      */
     _updateRewardLines() {
@@ -270,9 +293,12 @@ patch(PosOrder.prototype, {
             if (reward.reward.reward_type == "discount") {
                 allRewardsMerged.push(reward);
             } else {
+                // Each quantity is bound to the availability of its own `_reward_product_id`.
                 const reward_index = allRewardsMerged.findIndex(
                     (item) =>
-                        item.reward.id === reward.reward.id && item.args.price === reward.args.price
+                        item.reward.id === reward.reward.id &&
+                        item.args.price === reward.args.price &&
+                        item.args.product?.id === reward.args.product?.id
                 );
                 if (reward_index > -1) {
                     allRewardsMerged[reward_index].args.quantity += reward.args.quantity;
@@ -805,10 +831,15 @@ patch(PosOrder.prototype, {
                 if (points < reward.required_points) {
                     continue;
                 }
-                // Skip if the reward program is of type 'coupons' and there is already an reward orderline linked to the current reward to avoid multiple reward apply
+                // Skip already applied rewards: 'coupons' programs, and non-payment
+                // discounts when auto-claiming, to avoid stacking them
+                const isPaymentProgram = ["ewallet", "gift_card"].includes(
+                    reward.program_id.program_type
+                );
                 if (
-                    reward.program_id.program_type === "coupons" &&
-                    this.lines.find((rewardline) => rewardline.reward_id?.id === reward.id)
+                    (reward.program_id.program_type === "coupons" ||
+                        (auto && reward.reward_type === "discount" && !isPaymentProgram)) &&
+                    this.lines.some((rewardline) => rewardline.reward_id?.id === reward.id)
                 ) {
                     continue;
                 }
@@ -823,19 +854,25 @@ patch(PosOrder.prototype, {
                     continue;
                 }
                 let unclaimedQty;
+                let rewardProduct;
                 if (reward.reward_type === "product") {
                     if (!reward.multi_product) {
-                        const product = reward.reward_product_id;
-                        if (!product) {
-                            continue;
-                        }
-                        unclaimedQty = this._computeUnclaimedFreeProductQty(
-                            reward,
-                            couponProgram.coupon_id,
-                            product,
-                            points
+                        rewardProduct = reward.reward_product_id;
+                    } else if (auto) {
+                        // A multi product reward is claimed on the line being worked on.
+                        rewardProduct = reward.reward_product_ids.find(
+                            (product) => product.id === this.getSelectedOrderline()?.product_id.id
                         );
                     }
+                    if (!rewardProduct) {
+                        continue;
+                    }
+                    unclaimedQty = this._computeUnclaimedFreeProductQty(
+                        reward,
+                        couponProgram.coupon_id,
+                        rewardProduct,
+                        points
+                    );
                     if (!unclaimedQty || unclaimedQty <= 0) {
                         continue;
                     }
@@ -844,6 +881,7 @@ patch(PosOrder.prototype, {
                     coupon_id: couponProgram.coupon_id,
                     reward: reward,
                     potentialQty: unclaimedQty,
+                    product: rewardProduct,
                 });
             }
         }
@@ -1107,11 +1145,20 @@ patch(PosOrder.prototype, {
                     if (line.reward_id) {
                         continue;
                     }
+                    let discountedAmount = 0;
                     if (lineReward.discount_applicability === "cheapest") {
-                        remainingAmountPerLine[line.uuid] *= 1 - discount / line.getQuantity();
+                        discountedAmount =
+                            (-remainingAmountPerLine[line.uuid] * discount) / line.getQuantity();
                     } else {
-                        remainingAmountPerLine[line.uuid] *= 1 - discount;
+                        discountedAmount = -remainingAmountPerLine[line.uuid] * discount;
                     }
+                    if (lineReward.discount_max_amount && lineReward.discount_max_amount > 0) {
+                        discountedAmount = Math.max(
+                            discountedAmount,
+                            -lineReward.discount_max_amount
+                        );
+                    }
+                    remainingAmountPerLine[line.uuid] += discountedAmount;
                 }
             }
         }
@@ -1193,23 +1240,26 @@ patch(PosOrder.prototype, {
         // These are considered payments and do not require to be either taxed or split by tax
         const discountProduct = reward.discount_line_product_id;
         if (["ewallet", "gift_card"].includes(reward.program_id.program_type)) {
-            const price = discountProduct.getTaxDetails({
+            const baseLine = discountProduct.getBaseLine({
                 overridedValues: {
                     tax_ids: discountProduct.taxes_id,
                     price_unit: -Math.min(maxDiscount, discountable),
+                    quantity: 1,
                     special_mode: "total_included",
                 },
             });
-            const priceUnit =
-                price.total_excluded +
-                price.taxes_data
-                    .filter((taxData) => taxData.tax.price_include)
-                    .reduce((sum, taxData) => sum + taxData.tax_amount, 0);
+            accountTaxHelpers.add_tax_details_in_base_line(baseLine, this.company);
+            accountTaxHelpers.round_base_lines_tax_details([baseLine], this.company);
+            accountTaxHelpers.fix_base_lines_tax_details_on_manual_tax_amounts(
+                [baseLine],
+                this.company
+            );
+            const extraTaxData = accountTaxHelpers.export_base_line_extra_tax_data(baseLine);
 
             return [
                 {
                     product_id: discountProduct,
-                    price_unit: priceUnit,
+                    price_unit: baseLine.price_unit,
                     qty: 1,
                     reward_id: reward,
                     is_reward_line: true,
@@ -1217,6 +1267,7 @@ patch(PosOrder.prototype, {
                     points_cost: pointCost,
                     reward_identifier_code: rewardCode,
                     tax_ids: discountProduct.taxes_id,
+                    extra_tax_data: extraTaxData,
                 },
             ];
         }
