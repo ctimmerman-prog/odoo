@@ -99,6 +99,9 @@ patch(PosOrder.prototype, {
     },
     restoreState(vals) {
         super.restoreState(...arguments);
+        // The state may have been stored before pos_loyalty was installed
+        this.uiState.codeActivatedProgramRules ||= [];
+        this.uiState.couponPointChanges ||= {};
         this.uiState.disabledRewards = new Set(vals?.disabledRewards || []);
         for (const [key, pe] of Object.entries(this.uiState.couponPointChanges)) {
             if (!this.models["loyalty.program"].get(pe.program_id)) {
@@ -223,16 +226,27 @@ patch(PosOrder.prototype, {
         this._code_activated_coupon_ids = [["clear"]];
     },
     /**
-     * `_code_activated_coupon_ids` is a local field: it is lost when the order is
-     * rebuilt from the server or from IndexedDB, while the reward lines it justified
-     * are persisted with their `coupon_id`. Re-link those coupons so that
+     * `_code_activated_coupon_ids` and `codeActivatedProgramRules` are local: they are
+     * lost when the order is rebuilt from the server or from IndexedDB, while the reward
+     * lines they justified are persisted. Restore them from those lines so that
      * `_updateRewardLines` does not consider their rewards unclaimed and delete them.
      */
     _restoreCodeActivatedCoupons() {
         for (const line of this._get_reward_lines()) {
             const coupon = line.coupon_id;
+            if (!coupon) {
+                // Its coupon was temporary, the line proves the code of its program was entered.
+                for (const rule of line.reward_id?.program_id?.rule_ids || []) {
+                    if (
+                        rule.mode === "with_code" &&
+                        !this.uiState.codeActivatedProgramRules.includes(rule.id)
+                    ) {
+                        this.uiState.codeActivatedProgramRules.push(rule.id);
+                    }
+                }
+                continue;
+            }
             if (
-                !coupon ||
                 coupon.id <= 0 ||
                 !coupon.program_id ||
                 coupon.program_id.is_nominative ||
@@ -242,6 +256,23 @@ patch(PosOrder.prototype, {
                 continue;
             }
             this._code_activated_coupon_ids = [["link", coupon]];
+        }
+    },
+    /**
+     * A temporary (negative id) coupon is not saved on the server, so the reward lines
+     * of an order loaded from it have no coupon: give them back the card of their program.
+     */
+    _relinkRewardLinesWithoutCoupon() {
+        for (const line of this._get_reward_lines()) {
+            if (line.coupon_id) {
+                continue;
+            }
+            const pointChange = Object.values(this.uiState.couponPointChanges).find(
+                (pe) => pe.program_id === line.reward_id?.program_id?.id
+            );
+            if (pointChange) {
+                line.coupon_id = this.models["loyalty.card"].get(pointChange.coupon_id);
+            }
         }
     },
     /**
@@ -376,7 +407,7 @@ patch(PosOrder.prototype, {
             won += points - this._getPointsCorrection(program);
             if (coupon_id !== 0) {
                 for (const line of this._get_reward_lines()) {
-                    if (line.coupon_id.id === coupon_id) {
+                    if (line.coupon_id?.id === coupon_id) {
                         spent += line.points_cost;
                     }
                 }
@@ -1007,11 +1038,15 @@ patch(PosOrder.prototype, {
     _getDiscountableOnOrder(reward) {
         let discountable = 0;
         const discountablePerTax = {};
+        const isPaymentReward = ["ewallet", "gift_card"].includes(reward.program_id.program_type);
         for (const line of this.getOrderlines()) {
             if (!line.getQuantity()) {
                 continue;
             }
-            const taxKey = ["ewallet", "gift_card"].includes(reward.program_id.program_type)
+            if (!isPaymentReward && !line.isDiscountable()) {
+                continue;
+            }
+            const taxKey = isPaymentReward
                 ? line.tax_ids.map((t) => t.id)
                 : line.tax_ids.filter((t) => t.amount_type !== "fixed").map((t) => t.id);
             discountable += line.prices.total_included;
@@ -1030,6 +1065,7 @@ patch(PosOrder.prototype, {
         const applicableProductIds = new Set(reward.all_discount_product_ids.map((p) => p.id));
         const filtered_lines = this.getOrderlines().filter(
             (line) =>
+                line.isDiscountable() &&
                 !line.combo_parent_id &&
                 !line.reward_id &&
                 line.getQuantity() &&
@@ -1063,7 +1099,7 @@ patch(PosOrder.prototype, {
         const discountableLines = [];
         const applicableProductIds = new Set(reward.all_discount_product_ids.map((p) => p.id));
         for (const line of this.getOrderlines()) {
-            if (!line.getQuantity()) {
+            if (!line.getQuantity() || !line.isDiscountable()) {
                 continue;
             }
             if (
@@ -1089,13 +1125,13 @@ patch(PosOrder.prototype, {
         const orderProducts = orderLines.map((line) => line.product_id.id);
         const remainingAmountPerLine = {};
         for (const line of orderLines) {
-            if (!line.getQuantity() || !line.price_unit) {
+            if (!line.getQuantity() || !line.price_unit || !line.isDiscountable()) {
                 continue;
             }
             remainingAmountPerLine[line.uuid] = line.prices.total_included;
             const product_id = line.combo_parent_id?.product_id.id || line.getProduct().id;
             if (
-                applicableProductIds.has(product_id) ||
+                (!line.reward_id && applicableProductIds.has(product_id)) ||
                 (line._reward_product_id && applicableProductIds.has(line._reward_product_id.id))
             ) {
                 linesToDiscount.push(line);
@@ -1173,8 +1209,9 @@ patch(PosOrder.prototype, {
             if (!discountablePerTax[taxKey]) {
                 discountablePerTax[taxKey] = 0;
             }
-            discountablePerTax[taxKey] +=
-                line.basePrice * (remainingAmountPerLine[line.uuid] / line.prices.total_included);
+            discountablePerTax[taxKey] += line.prices.total_included
+                ? line.basePrice * (remainingAmountPerLine[line.uuid] / line.prices.total_included)
+                : 0;
         }
         return { discountable, discountablePerTax };
     },

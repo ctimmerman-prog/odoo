@@ -11,7 +11,7 @@ import * as PaymentScreen from "@point_of_sale/../tests/pos/tours/utils/payment_
 import * as Notification from "@point_of_sale/../tests/generic_helpers/notification_util";
 import * as Utils from "@point_of_sale/../tests/generic_helpers/utils";
 import { registry } from "@web/core/registry";
-import { scan_barcode } from "@point_of_sale/../tests/generic_helpers/utils";
+import { refresh, scan_barcode } from "@point_of_sale/../tests/generic_helpers/utils";
 
 registry.category("web_tour.tours").add("PosLoyaltyTour1", {
     steps: () =>
@@ -342,6 +342,21 @@ registry.category("web_tour.tours").add("PosLoyaltyTour11.1", {
             ProductScreen.totalAmountIs("150.00"),
             PosLoyalty.isRewardButtonHighlighted(false),
             PosLoyalty.finalizeOrder("Cash", "150"),
+            refresh(),
+            Chrome.clickOrders(),
+            TicketScreen.selectFilter("Paid"),
+            Chrome.waitRequest(),
+            {
+                trigger: "body",
+                run: () => {
+                    const order = posmodel.data.models["pos.order"]
+                        .getAll()
+                        .filter((o) => o.state === "paid")[0];
+                    if (!order.new_coupon_info && !order.raw.new_coupon_info) {
+                        throw Error("Next order coupon is missing");
+                    }
+                },
+            },
         ].flat(),
 });
 
@@ -866,3 +881,72 @@ registry.category("web_tour.tours").add("PosLoyaltySpecificDiscountNegativeLine"
             PosLoyalty.finalizeOrder("Cash", "850"),
         ].flat(),
 });
+
+registry
+    .category("web_tour.tours")
+    .add("test_promotion_reward_of_order_loaded_on_another_device_make_order", {
+        steps: () =>
+            [
+                Chrome.startPoS(),
+                Dialog.confirm("Open Register"),
+                ProductScreen.clickPartnerButton(),
+                ProductScreen.clickCustomer("AAAA"),
+                ProductScreen.addOrderline("Whiteboard Pen", "1", "100"),
+                PosLoyalty.hasRewardLine("10% on Whiteboard Pen", "-10.00"),
+                PosLoyalty.pointsAwardedAre("90"),
+                ProductScreen.saveOrder(),
+            ].flat(),
+    });
+
+registry.category("web_tour.tours").add("test_promotion_reward_of_order_loaded_on_another_device", {
+    steps: () =>
+        [
+            Chrome.startPoS(),
+            Chrome.clickOrders(),
+            TicketScreen.selectOrder("001"),
+            TicketScreen.loadSelectedOrder(),
+            PosLoyalty.hasRewardLine("10% on Whiteboard Pen", "-10.00"),
+            PosLoyalty.pointsAwardedAre("90"),
+            ProductScreen.totalAmountIs("90.00"),
+            ProductScreen.clickPayButton(),
+            PaymentScreen.totalIs("90.00"),
+            PaymentScreen.clickPaymentMethod("Bank"),
+            PaymentScreen.clickValidate(),
+            ReceiptScreen.isShown(),
+        ].flat(),
+});
+
+registry
+    .category("web_tour.tours")
+    .add("test_promo_code_reward_of_order_loaded_on_another_device_make_order", {
+        steps: () =>
+            [
+                Chrome.startPoS(),
+                Dialog.confirm("Open Register"),
+                ProductScreen.clickPartnerButton(),
+                ProductScreen.clickCustomer("AAAA"),
+                ProductScreen.addOrderline("Whiteboard Pen", "1", "100"),
+                PosLoyalty.enterCode("promocode"),
+                PosLoyalty.hasRewardLine("50% on specific products", "-50.00"),
+                ProductScreen.saveOrder(),
+            ].flat(),
+    });
+
+registry
+    .category("web_tour.tours")
+    .add("test_promo_code_reward_of_order_loaded_on_another_device", {
+        steps: () =>
+            [
+                Chrome.startPoS(),
+                Chrome.clickOrders(),
+                TicketScreen.selectOrder("001"),
+                TicketScreen.loadSelectedOrder(),
+                PosLoyalty.hasRewardLine("50% on specific products", "-50.00"),
+                ProductScreen.totalAmountIs("50.00"),
+                ProductScreen.clickPayButton(),
+                PaymentScreen.totalIs("50.00"),
+                PaymentScreen.clickPaymentMethod("Bank"),
+                PaymentScreen.clickValidate(),
+                ReceiptScreen.isShown(),
+            ].flat(),
+    });

@@ -51,7 +51,11 @@ class HrExpense(models.Model):
     def _default_employee_id(self):
         employee = self.env.user.employee_id
         if not employee and not self.env.user.has_group('hr_expense.group_hr_expense_team_approver'):
-            raise ValidationError(_('The current user has no related employee. Please, create one.'))
+            raise ValidationError(_(
+                "The current user has no related employee. "
+                "Please, create one in %(company)s, or switch to a company where they have one.",
+                company=self.env.company.name,
+            ))
         return employee
 
     name = fields.Char(
@@ -352,8 +356,9 @@ class HrExpense(models.Model):
 
             employee = expense.employee_id
             is_own_expense = employee.user_id == self.env.user
-            if is_own_expense and expense.state == 'draft':
-                # Anyone can edit their own draft expense
+            if (is_own_expense or not employee) and expense.state == 'draft':
+                # Anyone can edit their own draft expense, or a new one without employee yet
+                # (e.g. the user has no employee in the current company)
                 expense.is_editable = True
                 continue
 
@@ -986,7 +991,7 @@ class HrExpense(models.Model):
         match self.state:
             case 'draft':
                 return self.env.ref('hr_expense.mt_expense_reset')
-            case 'cancel':
+            case 'refused':
                 return self.env.ref('hr_expense.mt_expense_refused')
             case 'paid':
                 return self.env.ref('hr_expense.mt_expense_paid')

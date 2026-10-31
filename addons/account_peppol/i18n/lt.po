@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server saas~18.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-24 17:38+0000\n"
-"PO-Revision-Date: 2026-09-14 15:32+0000\n"
+"POT-Creation-Date: 2026-10-24 17:37+0000\n"
+"PO-Revision-Date: 2026-10-05 22:33+0000\n"
 "Last-Translator: Ulevičienė <vilma.uleviciene@mededu.lt>\n"
 "Language-Team: Lithuanian <https://translate.odoo.com/projects/odoo-19/"
 "account_peppol/lt/>\n"
@@ -25,7 +25,7 @@ msgstr ""
 #. module: account_peppol
 #. odoo-python
 #: code:addons/account_peppol/wizard/account_move_send_wizard.py:0
-msgid " (Customer not on Peppol)"
+msgid " (Customer not on %(network_name)s)"
 msgstr ""
 
 #. module: account_peppol
@@ -38,6 +38,12 @@ msgstr ""
 #. odoo-python
 #: code:addons/account_peppol/wizard/account_move_send_wizard.py:0
 msgid " (Missing %(eas)s)"
+msgstr ""
+
+#. module: account_peppol
+#. odoo-python
+#: code:addons/account_peppol/wizard/account_move_send_wizard.py:0
+msgid " (Previously sent)"
 msgstr ""
 
 #. module: account_peppol
@@ -69,6 +75,13 @@ msgstr ""
 #: code:addons/account_peppol/static/src/web/account_move_list_controller.js:0
 msgid ""
 "%(processed)s Peppol document(s) processed, %(deleted)s document(s) deleted"
+msgstr ""
+
+#. module: account_peppol
+#. odoo-python
+#: code:addons/account_peppol/exceptions.py:0
+#: code:addons/account_peppol/tools/peppol_errors.py:0
+msgid "%s"
 msgstr ""
 
 #. module: account_peppol
@@ -195,6 +208,100 @@ msgid ""
 "    </tr>\n"
 "</table>\n"
 "            "
+msgstr ""
+"<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"padding-top: "
+"16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; "
+"color: #454748; width: 100%; border-collapse:separate;\">\n"
+"    <tr>\n"
+"       <td align=\"center\">\n"
+"            <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" "
+"width=\"590\" style=\"padding: 16px; background-color: white; color: "
+"#454748; border-collapse:separate;\"> \n"
+"               <!-- HEADER -->\n"
+"                <tr> \n"
+"                   <td align=\"center\" style=\"min-width: 590px;\">\n"
+"                        <table width=\"590\" cellpadding=\"0\" "
+"cellspacing=\"0\" style=\"padding: 0px 8px; background-color: white; border-"
+"collapse:separate;\"> \n"
+"                           <tr>\n"
+"                                <td valign=\"middle\"> \n"
+"                                   <span style=\"font-size: 10px;\"> "
+"Pranešimas</span>\n"
+"                                    <br/>\n"
+"                                   <span style=\"font-size: 20px; font-"
+"weight: bold;\"> \n"
+"                                        Sveiki atvykę į „Peppol“\n"
+"                                   </span>\n"
+"                                    <div style=\"margin-bottom: 5px; margin-"
+"top: 18px;\"> \n"
+"                                       <a t-attf-href=\"/odoo/accounting/\" "
+"target=\"_blank\" t-attf-style=\"padding: 8px 12px; font-size: 12px; color: "
+"{{ object.email_primary_color or '#FFFFFF' }}; text-decoration: none !"
+"important; font-weight: 400; background-color: "
+"{{ object.email_secondary_color or '#875A7B' }}; border-radius:3px\"> \n"
+"                                            Siųsti sąskaitas faktūras\n"
+"                                       </a>\n"
+"                                    </div> \n"
+"                               </td>\n"
+"                                <td valign=\"middle\" align=\"right\"> \n"
+"                                   <t t-if=\"not "
+"object.uses_default_logo\">\n"
+"                                        <img t-att-src=\"'/logo.png?"
+"company=%s' % object.id\" style=\"height: auto; width: 80px; margin-right: "
+"10px;\" t-att-alt=\"'%s' % object.name\"/> \n"
+"                                   </t>\n"
+"                                </td> \n"
+"                           </tr>\n"
+"                            <tr> \n"
+"                               <td colspan=\"2\" style=\"text-align:center;"
+"\">\n"
+"                                    <hr style=\"background-color:#CCCCCC; "
+"border:none; height:1px; margin:16px 0;\"/> \n"
+"                               </td>\n"
+"                            </tr> \n"
+"                       </table>\n"
+"                    </td> \n"
+"               </tr>\n"
+"                <!-- BODY --> \n"
+"               <tr>\n"
+"                    <td align=\"center\"> \n"
+"                       <table width=\"590\" cellpadding=\"0\" "
+"cellspacing=\"0\" style=\"padding: 0px 8px; background-color: white; border-"
+"collapse:separate;\">\n"
+"                            <tr> \n"
+"                               <td style=\"font-size: 14px;\">\n"
+"                                    <p> Gerb. <t t-out=\"object.name or "
+"''\">YourCompany</t>,</p>\n"
+"\n"
+"                                    <p>Sėkmingai įtraukėme jūsų įmonę į "
+"„ <strong>“ „Peppol“ tinklą</strong>.</p>\n"
+"\n"
+"                                    <p>Dabar galite <strong>siųsti<t t-"
+"if=\"object.account_peppol_proxy_state == 'receiver'\"> ir gauti</t></"
+"strong> elektronines sąskaitas faktūras per „Odoo“ — visiškai nemokamai.</"
+"p>\n"
+"\n"
+"                                    <p>Su pagarba,</p>\n"
+"\n"
+"                                    <p style=\"margin-bottom: 24px;\">„Odoo“ "
+"komanda</p>\n"
+"                                </td>\n"
+"                           </tr>\n"
+"                        </table> \n"
+"                   </td>\n"
+"                </tr> \n"
+"           </table>\n"
+"        </td> \n"
+"   </tr>\n"
+"</table> \n"
+"            "
+
+#. module: account_peppol
+#. odoo-python
+#: code:addons/account_peppol/tools/peppol_errors.py:0
+msgid ""
+"A 0% tax cannot use Tax Category 'S' (Standard). Please update the Tax "
+"Category in the Advanced Options of the tax configuration."
 msgstr ""
 
 #. module: account_peppol
@@ -376,7 +483,7 @@ msgstr ""
 #. module: account_peppol
 #: model:ir.model.fields,field_description:account_peppol.field_peppol_registration__active_parent_company_name
 msgid "Active Parent Company Name"
-msgstr ""
+msgstr "Veikianti patronuojančios bendrovės pavadinimas"
 
 #. module: account_peppol
 #: model_terms:ir.ui.view,arch_db:account_peppol.res_config_settings_view_form
@@ -578,7 +685,15 @@ msgstr ""
 #. module: account_peppol
 #. odoo-python
 #: code:addons/account_peppol/models/account_move.py:0
-msgid "Cannot cancel an entry that has already been sent to PEPPOL"
+msgid "Cannot cancel an entry that has already been sent via %(network_name)s"
+msgstr ""
+
+#. module: account_peppol
+#. odoo-python
+#: code:addons/account_peppol/tools/peppol_errors.py:0
+msgid ""
+"Cannot initiate KYC for the selected scheme (unsupported, deprecated, or "
+"removed). Please select a different scheme."
 msgstr ""
 
 #. module: account_peppol
@@ -595,7 +710,6 @@ msgid "Check Partner(s)"
 msgstr "Patikrinkite partnerį (-ius)"
 
 #. module: account_peppol
-#: model:ir.model.fields,help:account_peppol.field_peppol_registration__peppol_eas
 #: model:ir.model.fields,help:account_peppol.field_res_company__peppol_eas
 #: model:ir.model.fields,help:account_peppol.field_res_config_settings__account_peppol_eas
 #: model:ir.model.fields,help:account_peppol.field_res_partner__peppol_eas
@@ -676,7 +790,7 @@ msgstr ""
 #. module: account_peppol
 #. odoo-javascript
 #: code:addons/account_peppol/static/src/components/peppol_info/peppol_info.xml:0
-msgid "Create, send and receive e-invoices for free."
+msgid "Create, send, and receive e-invoices for free."
 msgstr ""
 
 #. module: account_peppol
@@ -772,7 +886,7 @@ msgstr ""
 #. module: account_peppol
 #: model:ir.model.fields,field_description:account_peppol.field_peppol_registration__display_use_parent_connection_selection
 msgid "Display Use Parent Connection Selection"
-msgstr ""
+msgstr "Rodyti tėvų ryšio pasirinkimą"
 
 #. module: account_peppol
 #. odoo-javascript
@@ -899,11 +1013,24 @@ msgid ""
 "please go to Settings > Accounting > Peppol Settings and click on 'Reconnect "
 "this database'."
 msgstr ""
+"Nepavyko prisijungti prie „Peppol“ prieigos taško. Tai gali atsitikti, jei "
+"atkūrėte duomenų bazę iš atsarginės kopijos arba ją nukopijavote be "
+"neutralizavimo. Norėdami išspręsti šią problemą, eikite į „Nustatymai“ > "
+"„Apskaita“ > „Peppol nustatymai“ ir spustelėkite „Prisijungti prie šios "
+"duomenų bazės iš naujo“."
 
 #. module: account_peppol
 #. odoo-python
-#: code:addons/account_peppol/models/account_move_send.py:0
-#: code:addons/account_peppol/wizard/peppol_registration.py:0
+#: code:addons/account_peppol/tools/peppol_errors.py:0
+msgid ""
+"For tax(es) %(taxes)s: Tax Category 'O' must be used when the exemption "
+"reason code is 'VATEX-EU-O'. You can change this in the Advanced Options of "
+"the tax configuration."
+msgstr ""
+
+#. module: account_peppol
+#. odoo-python
+#: code:addons/account_peppol/models/res_config_settings.py:0
 msgid "France - E-Invoicing (Approved Platform)"
 msgstr ""
 
@@ -917,6 +1044,12 @@ msgstr ""
 #. odoo-javascript
 #: code:addons/account_peppol/static/src/components/peppol_info/peppol_info.xml:0
 msgid "Fully automated"
+msgstr ""
+
+#. module: account_peppol
+#. odoo-python
+#: code:addons/account_peppol/models/res_config_settings.py:0
+msgid "Go to module"
 msgstr ""
 
 #. module: account_peppol
@@ -970,6 +1103,14 @@ msgid ""
 msgstr ""
 
 #. module: account_peppol
+#. odoo-python
+#: code:addons/account_peppol/tools/peppol_errors.py:0
+msgid ""
+"If you are not subject to VAT, you should not have a VAT number on your "
+"company/contacts and your clients should not have one either."
+msgstr ""
+
+#. module: account_peppol
 #: model_terms:ir.ui.view,arch_db:account_peppol.peppol_registration_form
 msgid "If you don't have Itsme, please contact"
 msgstr ""
@@ -977,7 +1118,9 @@ msgstr ""
 #. module: account_peppol
 #. odoo-python
 #: code:addons/account_peppol/controllers/portal.py:0
-msgid "If you want to be invoiced by Peppol, your configuration must be valid."
+msgid ""
+"If you want to be invoiced via %(network_name)s, your configuration must be "
+"valid."
 msgstr ""
 
 #. module: account_peppol
@@ -988,7 +1131,33 @@ msgstr ""
 #. module: account_peppol
 #. odoo-python
 #: code:addons/account_peppol/models/account_move_send.py:0
-msgid "Invoice %s exceeds the size limit of 64 MB to be sent via Peppol."
+msgid ""
+"Invoice %(invoice_name)s exceeds the size limit of 64 MB to be sent via %"
+"(network_name)s."
+msgstr ""
+
+#. module: account_peppol
+#. odoo-python
+#: code:addons/account_peppol/tools/peppol_errors.py:0
+msgid ""
+"Invoice lines using Tax Category 'O' cannot use a percentage-based tax. "
+"Please update the tax type in Advanced Options."
+msgstr ""
+
+#. module: account_peppol
+#. odoo-python
+#: code:addons/account_peppol/tools/peppol_errors.py:0
+msgid ""
+"Invoice lines with Tax Category 'Exempt from VAT' must have a tax rate of 0. "
+"You can change this in the Advanced Options of the tax configuration."
+msgstr ""
+
+#. module: account_peppol
+#. odoo-python
+#: code:addons/account_peppol/tools/peppol_errors.py:0
+msgid ""
+"Invoice lines with Tax Category 'Reverse charge' must have a tax rate of 0. "
+"You can change this in the Advanced Options of the tax configuration."
 msgstr ""
 
 #. module: account_peppol
@@ -1050,6 +1219,38 @@ msgstr ""
 #: model:ir.model.fields,field_description:account_peppol.field_res_company__account_peppol_migration_key
 #: model:ir.model.fields,field_description:account_peppol.field_res_config_settings__account_peppol_migration_key
 msgid "Migration Key"
+msgstr ""
+
+#. module: account_peppol
+#. odoo-python
+#: code:addons/account_peppol/tools/peppol_errors.py:0
+msgid ""
+"Missing Buyer Country. Please add the Country Code to the client's contact "
+"information."
+msgstr ""
+
+#. module: account_peppol
+#. odoo-python
+#: code:addons/account_peppol/tools/peppol_errors.py:0
+msgid ""
+"Missing Invoiced Item VAT category code. Action Required: Install the module "
+"account_edi_ubl_cii_tax_extension."
+msgstr ""
+
+#. module: account_peppol
+#. odoo-python
+#: code:addons/account_peppol/tools/peppol_errors.py:0
+msgid ""
+"Missing Reverse Charge details. Please set the Exemption Reason to 'Reverse "
+"charge' in the Advanced Options of the tax configuration."
+msgstr ""
+
+#. module: account_peppol
+#. odoo-python
+#: code:addons/account_peppol/tools/peppol_errors.py:0
+msgid ""
+"Missing VAT category code. Action Required: Install the module "
+"account_edi_ubl_cii_tax_extension."
 msgstr ""
 
 #. module: account_peppol
@@ -1116,7 +1317,7 @@ msgstr ""
 #. module: account_peppol
 #. odoo-javascript
 #: code:addons/account_peppol/static/src/components/peppol_info/peppol_info.xml:0
-msgid "Odoo keeps you up to date with the new regulation."
+msgid "Odoo keeps you up to date with new regulations."
 msgstr ""
 
 #. module: account_peppol
@@ -1128,20 +1329,6 @@ msgstr "Kita"
 #. module: account_peppol
 #: model:ir.model.fields.selection,name:account_peppol.selection__account_edi_proxy_client_user__proxy_type__peppol
 msgid "PEPPOL"
-msgstr ""
-
-#. module: account_peppol
-#. odoo-javascript
-#: code:addons/account_peppol/static/src/components/peppol_info/peppol_info.xml:0
-msgid ""
-"PEPPOL allows for complete automation of sending and receiving e-invoices."
-msgstr ""
-
-#. module: account_peppol
-#. odoo-javascript
-#: code:addons/account_peppol/static/src/components/peppol_info/peppol_info.xml:0
-msgid ""
-"PEPPOL is the secure standard for e-invoices used in EU and across the world."
 msgstr ""
 
 #. module: account_peppol
@@ -1194,7 +1381,7 @@ msgstr ""
 #. module: account_peppol
 #. odoo-python
 #: code:addons/account_peppol/wizard/account_move_send_wizard.py:0
-msgid "Partner doesn't have a valid Peppol configuration."
+msgid "Partner doesn't have a valid configuration for %(network_name)s."
 msgstr ""
 
 #. module: account_peppol
@@ -1214,6 +1401,12 @@ msgstr ""
 
 #. module: account_peppol
 #. odoo-python
+#: code:addons/account_peppol/models/res_company.py:0
+msgid "Peppol"
+msgstr ""
+
+#. module: account_peppol
+#. odoo-python
 #: code:addons/account_peppol/wizard/peppol_registration.py:0
 msgid "Peppol Address should be provided."
 msgstr ""
@@ -1221,7 +1414,7 @@ msgstr ""
 #. module: account_peppol
 #: model:ir.actions.client,name:account_peppol.action_peppol_auth_callback
 msgid "Peppol Auth Callback action"
-msgstr ""
+msgstr "„Peppol Auth Callback“ veiksmas"
 
 #. module: account_peppol
 #: model:ir.model.fields,field_description:account_peppol.field_peppol_registration__peppol_can_connect_data
@@ -1256,6 +1449,17 @@ msgid "Peppol Documents: Cannot Delete Invoice"
 msgstr ""
 
 #. module: account_peppol
+#. odoo-python
+#: code:addons/account_peppol/models/res_company.py:0
+msgid "Peppol EAS and/or Endpoint identifier"
+msgstr ""
+
+#. module: account_peppol
+#: model:ir.model.fields,field_description:account_peppol.field_peppol_registration__peppol_eas
+msgid "Peppol Eas"
+msgstr ""
+
+#. module: account_peppol
 #: model:ir.model.fields,field_description:account_peppol.field_peppol_registration__peppol_endpoint
 #: model:ir.model.fields,field_description:account_peppol.field_res_company__peppol_endpoint
 #: model:ir.model.fields,field_description:account_peppol.field_res_config_settings__account_peppol_endpoint
@@ -1266,9 +1470,7 @@ msgstr ""
 #. module: account_peppol
 #. odoo-python
 #: code:addons/account_peppol/exceptions.py:0
-msgid ""
-"Peppol Error [code=%(error_code)s]: %(error_subject)s\n"
-"%(error_message)s"
+msgid "Peppol Error"
 msgstr ""
 
 #. module: account_peppol
@@ -1308,7 +1510,7 @@ msgstr ""
 #. module: account_peppol
 #: model:ir.model.fields,field_description:account_peppol.field_res_config_settings__peppol_parent_company_name
 msgid "Peppol Parent Company Name"
-msgstr ""
+msgstr "„Peppol“ patronuojančiosios bendrovės pavadinimas"
 
 #. module: account_peppol
 #: model:ir.model.fields,field_description:account_peppol.field_res_config_settings__peppol_participation_role
@@ -1348,6 +1550,13 @@ msgid "Peppol Use Parent Company"
 msgstr ""
 
 #. module: account_peppol
+#. odoo-javascript
+#: code:addons/account_peppol/static/src/components/peppol_info/peppol_info.xml:0
+msgid ""
+"Peppol allows for complete automation of sending and receiving e-invoices."
+msgstr ""
+
+#. module: account_peppol
 #. odoo-python
 #: code:addons/account_peppol/models/account_edi_common.py:0
 msgid "Peppol document UUID: %s"
@@ -1359,7 +1568,6 @@ msgid "Peppol e-Address (EAS)"
 msgstr ""
 
 #. module: account_peppol
-#: model:ir.model.fields,field_description:account_peppol.field_peppol_registration__peppol_eas
 #: model:ir.model.fields,field_description:account_peppol.field_res_company__peppol_eas
 #: model:ir.model.fields,field_description:account_peppol.field_res_config_settings__account_peppol_eas
 #: model:ir.model.fields,field_description:account_peppol.field_res_partner__peppol_eas
@@ -1371,6 +1579,13 @@ msgstr ""
 #. odoo-python
 #: code:addons/account_peppol/models/account_edi_common.py:0
 msgid "Peppol invoice received"
+msgstr ""
+
+#. module: account_peppol
+#. odoo-javascript
+#: code:addons/account_peppol/static/src/components/peppol_info/peppol_info.xml:0
+msgid ""
+"Peppol is the secure standard for e-invoices used in EU and across the world."
 msgstr ""
 
 #. module: account_peppol
@@ -1429,8 +1644,14 @@ msgstr ""
 #. module: account_peppol
 #. odoo-python
 #: code:addons/account_peppol/wizard/peppol_registration.py:0
-msgid "Please select a country for your company."
+msgid "Please make sure the Contact email is a valid email address."
 msgstr ""
+
+#. module: account_peppol
+#. odoo-python
+#: code:addons/account_peppol/wizard/peppol_registration.py:0
+msgid "Please select a country for your company."
+msgstr "Prašome pasirinkti šalį, kurioje veikia jūsų įmonė."
 
 #. module: account_peppol
 #. odoo-python
@@ -1539,13 +1760,13 @@ msgstr "Išsaugoti"
 #. module: account_peppol
 #: model:ir.model.fields,field_description:account_peppol.field_peppol_registration__selected_company_id
 msgid "Selected Company"
-msgstr ""
+msgstr "Pasirinkta įmonė"
 
 #. module: account_peppol
 #. odoo-python
 #: code:addons/account_peppol/wizard/peppol_registration.py:0
 msgid "Selected authentication method is not available."
-msgstr ""
+msgstr "Pasirinktas autentifikavimo būdas nėra prieinamas."
 
 #. module: account_peppol
 #: model_terms:ir.ui.view,arch_db:account_peppol.peppol_config_wizard_form
@@ -1654,7 +1875,7 @@ msgstr ""
 #. module: account_peppol
 #. odoo-python
 #: code:addons/account_peppol/controllers/portal.py:0
-msgid "That country is not available for Peppol."
+msgid "That country is not available with %(network_name)s."
 msgstr ""
 
 #. module: account_peppol
@@ -1710,6 +1931,14 @@ msgstr ""
 
 #. module: account_peppol
 #. odoo-python
+#: code:addons/account_peppol/tools/peppol_errors.py:0
+msgid ""
+"The Peppol endpoint is missing in the XML file. Action Required: Update the "
+"account and account_edi_ubl_cii modules to resolve this."
+msgstr ""
+
+#. module: account_peppol
+#. odoo-python
 #: code:addons/account_peppol/models/res_company.py:0
 msgid "The Peppol service that is used is %s."
 msgstr ""
@@ -1720,6 +1949,14 @@ msgstr ""
 msgid ""
 "The Service Metadata Publisher associated to this participant is not "
 "reachable. url: %s"
+msgstr ""
+
+#. module: account_peppol
+#. odoo-python
+#: code:addons/account_peppol/tools/peppol_errors.py:0
+msgid ""
+"The Tax Category must be 'AE' when using Exemption Reason code 'VATEX-EU-"
+"AE'. You can change this in the Advanced Options of the tax configuration."
 msgstr ""
 
 #. module: account_peppol
@@ -1815,6 +2052,14 @@ msgstr ""
 msgid ""
 "The endpoint number might not be correct. Please check if you entered the "
 "right identification number."
+msgstr ""
+
+#. module: account_peppol
+#. odoo-python
+#: code:addons/account_peppol/tools/peppol_errors.py:0
+msgid ""
+"The exemption reason code is invalid. Action Required: Install the module "
+"account_edi_ubl_cii_tax_extension."
 msgstr ""
 
 #. module: account_peppol
@@ -2022,8 +2267,18 @@ msgstr ""
 
 #. module: account_peppol
 #. odoo-python
-#: code:addons/account_peppol/wizard/peppol_registration.py:0
-msgid "To use the Approved Platform for French E-Invoicing install the module"
+#: code:addons/account_peppol/models/res_config_settings.py:0
+msgid ""
+"To use the Approved Platform for French E-Invoicing install the module '%s'."
+msgstr ""
+
+#. module: account_peppol
+#. odoo-python
+#: code:addons/account_peppol/models/res_config_settings.py:0
+msgid ""
+"To use the Approved Platform for French E-Invoicing install the module "
+"'%s'.\n"
+"The module was not found. Please update the app list first."
 msgstr ""
 
 #. module: account_peppol
@@ -2075,6 +2330,12 @@ msgid "Unknown Peppol Error: %s"
 msgstr ""
 
 #. module: account_peppol
+#. odoo-python
+#: code:addons/account_peppol/models/res_config_settings.py:0
+msgid "Update App List"
+msgstr ""
+
+#. module: account_peppol
 #: model:ir.model.fields,field_description:account_peppol.field_peppol_registration__use_parent_connection
 msgid "Use Parent Connection"
 msgstr ""
@@ -2082,7 +2343,7 @@ msgstr ""
 #. module: account_peppol
 #: model:ir.model.fields,field_description:account_peppol.field_peppol_registration__use_parent_connection_selection
 msgid "Use Parent Connection Selection"
-msgstr ""
+msgstr "Naudokite tėvų ryšio pasirinkimą"
 
 #. module: account_peppol
 #. odoo-javascript
@@ -2127,7 +2388,7 @@ msgstr ""
 #. module: account_peppol
 #. odoo-javascript
 #: code:addons/account_peppol/static/src/components/peppol_info/peppol_info.xml:0
-msgid "What is Peppol and why it's great ?"
+msgid "What is Peppol and why is it great?"
 msgstr ""
 
 #. module: account_peppol
@@ -2139,13 +2400,13 @@ msgstr ""
 #. module: account_peppol
 #. odoo-python
 #: code:addons/account_peppol/models/account_move_send.py:0
-msgid "Why should I use PEPPOL ?"
+msgid "Why should I use Peppol?"
 msgstr ""
 
 #. module: account_peppol
 #. odoo-python
 #: code:addons/account_peppol/models/account_move_send.py:0
-msgid "Why should you use it ?"
+msgid "Why should you use it?"
 msgstr ""
 
 #. module: account_peppol
@@ -2380,20 +2641,18 @@ msgid "and send invoices via Peppol on their behalf."
 msgstr ""
 
 #. module: account_peppol
-#. odoo-python
-#: code:addons/account_peppol/controllers/portal.py:0
 #: model:ir.model.fields.selection,name:account_peppol.selection__res_partner__invoice_sending_method__peppol
 msgid "by Peppol"
 msgstr ""
 
 #. module: account_peppol
 #: model_terms:ir.ui.view,arch_db:account_peppol.mail_notification_layout_with_responsible_signature_and_peppol
-msgid "could not be sent via Peppol"
+msgid "could not be sent via"
 msgstr ""
 
 #. module: account_peppol
 #: model_terms:ir.ui.view,arch_db:account_peppol.mail_notification_layout_with_responsible_signature_and_peppol
-msgid "sent via Peppol"
+msgid "sent via"
 msgstr ""
 
 #. module: account_peppol
@@ -2410,6 +2669,9 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:account_peppol.mail_notification_layout_with_responsible_signature_and_peppol
 msgid "uses"
 msgstr ""
+
+#~ msgid "What is Peppol and why it's great ?"
+#~ msgstr "Kas yra „Peppol“ ir kodėl jis toks puikus?"
 
 #~ msgid "Valid"
 #~ msgstr "Galioja"
